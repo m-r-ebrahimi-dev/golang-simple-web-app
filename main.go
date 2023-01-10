@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -29,15 +30,33 @@ func About(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func Divide(w http.ResponseWriter, r *http.Request) {
+	rand.Seed(time.Now().UnixNano())
+	divide, error := divideValues(rand.Float32(), rand.Float32())
+	if error != nil {
+		fmt.Fprintf(w, fmt.Sprintf("can't divide by 0"))
+		return
+	}
+	_, _ = fmt.Fprintf(w, fmt.Sprintf("divide: %.2f", divide))
+
+}
 
 func addValues(x, y int) (int, error) {
 	sum := x + y
 	return sum, nil
 }
 
+func divideValues(x, y float32) (float32, error) {
+	if y == 0 {
+		return 0, errors.New("divider must not be 0")
+	}
+	return x / y, nil
+}
+
 func main() {
 	http.HandleFunc("/", HomePage)
 	http.HandleFunc("/about", About)
+	http.HandleFunc("/divide", Divide)
 
 	err := http.ListenAndServe(portNumber, nil)
 	if err != nil {
