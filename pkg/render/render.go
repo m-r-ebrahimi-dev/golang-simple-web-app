@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/m-r-ebrahimi-dev/golang-simple-web-app/pkg/config"
+	"github.com/m-r-ebrahimi-dev/golang-simple-web-app/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,8 +20,12 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
+func addDefaultData(td *models.TemplateData) *models.TemplateData {
+	return td
+}
+
 // RenderTemplate renders templates using "html/template"
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 	if app.UseCache {
 		tc = app.TemplateCache
@@ -32,7 +37,10 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 		log.Fatal("could notget template from template cache")
 	}
 	buf := new(bytes.Buffer)
-	_ = t.Execute(buf, nil)
+
+	td = addDefaultData(td)
+
+	_ = t.Execute(buf, td)
 	_, err := buf.WriteTo(w)
 	if err != nil {
 		fmt.Println("Error writing template to browser", err)
