@@ -25,10 +25,11 @@ func main() {
 
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.HomePage)
-	http.HandleFunc("/about", handlers.Repo.About)
-
-	err = http.ListenAndServe(portNumber, nil)
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+	err = srv.ListenAndServe()
 	if err != nil {
 		return
 	}
